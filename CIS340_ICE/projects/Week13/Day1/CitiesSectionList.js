@@ -9,3 +9,8 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+
+// Main functional component
+export default function StatesApp() {
+
+}
