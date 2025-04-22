@@ -7,7 +7,69 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
 
 export default function App() {
-}
+  const[selectedImage, setSelectedImage] = useState(null);
+
+  async function openImagePicker(){
+    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted){
+      Alert.alert("Permission required", "You need to alllow access to select images.");
+      return;
+    }
+
+    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (pickerResult.canceled){
+      return;
+    }
+
+    let imageUri = pickerResult.assets[0].uri;
+    setSelectedImage({localURI: imageUri});
+  }
+
+  async function shareImage(){
+    if (!selectedImage){
+      Alert.alert("No Image", "please pick an image first.");
+      return;
+    }
+
+    let canShare = await Sharing.isAvailableAsync();
+    if (!canShare) {
+      Alert.alert("Sharing not supported", "Sharing is not available on this device.");
+      return;
+    }
+
+    await Sharing.shareAsync(selectedImage.localUri);
+  }
+
+  return(
+    <View style = {styles.container}>
+
+      {selectedImage ? (
+        <View style = {{alignItems: 'center' }}>
+          <image source={{ uri: selectedImage.localUri}} sytle ={Styles.selectedImage}/>
+          <TouchableOpacity onPress = {shareImage} style = {styles.button}>
+            <Text style={styles.buttonText}>Share This Photo</Text>
+          </TouchableOpacity>
+    </View>
+  ):(
+    <View style = {{alignItems: 'center'}}>
+      <Image
+      source = {{uri:'https://raw.githubusercontent.com/AnanthIyerKrishnan/CIS340/master/images/dog2.png'}}
+      style={styles.logo}
+      />
+      <Text style = {styles.instructions}>
+        Press the button below to select an image from your phone!
+      </Text>
+      <TouchableOpacity onPress={openImagePicker} style={styles.button}>
+        <Text style = {styles.buttonText}>Pick Image</Text>
+      </TouchableOpacity>
+     </View>
+  )};
+</View>)}
 
 // Style definitions
 const styles = StyleSheet.create({
